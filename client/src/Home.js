@@ -4,20 +4,20 @@ import React from 'react'
 export default function Home() {
   const [entries, setEntries] = React.useState([])
 
-  React.useEffect(
-    () =>
-      void fetch('/api')
+  function triggerRefreshEntries() {
+    fetch('/api')
         .then(i => i.json())
-        .then(setEntries),
-    []
-  )
+        .then(setEntries)
+  }
+
+  React.useEffect(triggerRefreshEntries, [])
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <div style={{ display: 'flex', flexDirection: 'column', width: '750px' }}>
         <h2 style={{ alignSelf: 'center' }}>Available autorun entries:</h2>
-        {entries.map((i, index) => <Entry {...i} index={index} />)}
-        <NewEntry />
+        {entries.map((i, index) => <Entry {...i} index={index} refresh={triggerRefreshEntries} />)}
+        <NewEntry refresh={triggerRefreshEntries} />
       </div>
     </div>
   );
@@ -26,7 +26,7 @@ export default function Home() {
 /**
  * @param {import('../..').Entry & {index: number}} param0
  */
-function Entry({ dir, args, index }) {
+function Entry({ dir, args, index, refresh }) {
   return (
     <div style={{
       display: 'flex',
@@ -45,14 +45,14 @@ function Entry({ dir, args, index }) {
           () =>
             fetch('/api/delete?' + new URLSearchParams({ index }))
               .then(i => i.json())
-              .then(i => i.error ? alert(JSON.stringify(i)) : document.location.reload())
+              .then(i => i.error ? alert(JSON.stringify(i)) : refresh())
         }>Delete</ToolButton>
       </div>
     </div>
   )
 }
 
-function NewEntry() {
+function NewEntry({refresh}) {
   let [args, setArgs] = React.useState('')
   let [dir, setDir] = React.useState('')
 
@@ -68,7 +68,7 @@ function NewEntry() {
     }
     fetch('/api/set?' + new URLSearchParams({ dir, args }))
       .then(i => i.json())
-      .then(i => i.error ? alert(JSON.stringify(i)) : document.location.reload())
+      .then(i => i.error ? alert(JSON.stringify(i)) : refresh())
   }
 
   return (

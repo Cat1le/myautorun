@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "build": "cmd /c build.cmd"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "md5": "^2.3.0"
